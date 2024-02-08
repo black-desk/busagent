@@ -13,7 +13,7 @@ func (p *impl) Variant(variant *dbus.Variant) {
 		Value     interface{}
 	}{
 		Signature: variant.Signature(),
-		Value: variant.Value(),
+		Value:     variant.Value(),
 	}
 	var err error
 	var raw json.RawMessage
