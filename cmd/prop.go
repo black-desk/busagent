@@ -16,6 +16,11 @@ var propCmd = &cobra.Command{
 			return
 		}
 
+		if flagInterface == "" {
+			err = fmt.Errorf(`"prop" is required`)
+			return
+		}
+
 		if flagPropName == "" {
 			err = fmt.Errorf(`"prop" is required`)
 			return
@@ -25,16 +30,10 @@ var propCmd = &cobra.Command{
 	},
 }
 
-var flagName string
-var flagObjectPath string
 var flagPropName string
 
 func init() {
 	rootCmd.AddCommand(propCmd)
-	propCmd.PersistentFlags().StringVarP(
-		&flagName, "name", "n", "", "DBus name")
-	propCmd.PersistentFlags().StringVarP(
-		&flagObjectPath, "path", "o", "/", "DBus object path")
 	propCmd.PersistentFlags().StringVarP(
 		&flagPropName, "prop", "p", "", "property name")
 }

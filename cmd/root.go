@@ -80,6 +80,9 @@ var flagJSON bool
 var flagBusType string
 var flagBusAddress string
 var flagIndent string
+var flagName string
+var flagObjectPath string
+var flagInterface string
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(
@@ -92,4 +95,10 @@ func init() {
 		&flagBusAddress, "addr", "a", "", "message bus address to use, this ignore --type")
 	rootCmd.PersistentFlags().StringVarP(
 		&flagIndent, "indent", "", "  ", "json indent")
+	rootCmd.PersistentFlags().StringVarP(
+		&flagName, "name", "n", "", "DBus name")
+	rootCmd.PersistentFlags().StringVarP(
+		&flagObjectPath, "path", "o", "/", "DBus object path")
+	rootCmd.PersistentFlags().StringVarP(
+		&flagInterface, "interface", "i", "", "DBus interface name")
 }

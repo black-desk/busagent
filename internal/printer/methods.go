@@ -13,3 +13,7 @@ func (p *impl) Variant(v *dbus.Variant) {
 func (p *impl) Signal(s *dbus.Signal) {
 	fmt.Printf("%v\n", *s)
 }
+
+func (p *impl) Reply(v []any) {
+	fmt.Printf("%v\n", v)
+}

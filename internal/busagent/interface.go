@@ -8,6 +8,7 @@ import (
 
 // BusAgent is an interface generated for "github.com/black-desk/busagent/internal/busagent.impl".
 type BusAgent interface {
+	Call(string, dbus.ObjectPath, string, string, ...string) error
 	Listen([]string) error
-	PropGet(string, dbus.ObjectPath, string) error
+	PropGet(string, dbus.ObjectPath, string, string) error
 }

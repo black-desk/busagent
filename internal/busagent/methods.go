@@ -9,7 +9,7 @@ import (
 )
 
 func (agent *impl) PropGet(
-	id string, path dbus.ObjectPath, propName string,
+	id string, path dbus.ObjectPath, interfaceName string, propName string,
 ) (
 	err error,
 ) {
@@ -18,7 +18,7 @@ func (agent *impl) PropGet(
 	obj := agent.conn.Object(id, path)
 
 	var prop dbus.Variant
-	prop, err = obj.GetProperty(propName)
+	prop, err = obj.GetProperty(interfaceName + "." + propName)
 	if err != nil {
 		return
 	}
@@ -54,5 +54,32 @@ func (agent *impl) Listen(options []string) (err error) {
 		agent.print.Signal(signal)
 	}
 
+	return
+}
+
+func (agent *impl) Call(
+	id string, path dbus.ObjectPath, interfaceName string, method string,
+	rawArgs ...string,
+) (
+	err error,
+) {
+	var args []any
+	for i := 0; i < len(rawArgs); i++ {
+		var v dbus.Variant
+		v, err = dbus.ParseVariant(rawArgs[i], dbus.Signature{})
+		if err != nil {
+			return err
+		}
+		args = append(args, v.Value())
+	}
+
+	obj := agent.conn.Object(id, path)
+	c := make(chan *dbus.Call, 1)
+	call := obj.Go(interfaceName+"."+method, 0, c, args...)
+	<-c
+	if call.Err != nil {
+		return call.Err
+	}
+	agent.print.Reply(call.Body)
 	return
 }

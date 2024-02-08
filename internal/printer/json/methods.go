@@ -46,3 +46,14 @@ func (p *impl) Signal(s *dbus.Signal) {
 
 	fmt.Printf("%s\n", raw)
 }
+
+func (p *impl) Reply(v []any) {
+	var err error
+	var raw json.RawMessage
+	raw, err = json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s\n", raw)
+}
