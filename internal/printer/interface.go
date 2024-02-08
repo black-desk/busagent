@@ -8,7 +8,7 @@ import (
 
 // Printer is an interface generated for "github.com/black-desk/busagent/internal/printer.impl".
 type Printer interface {
-	Reply([]any)
+	Reply(*dbus.Call)
 	Signal(*dbus.Signal)
 	Variant(*dbus.Variant)
 }

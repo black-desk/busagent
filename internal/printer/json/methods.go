@@ -7,39 +7,21 @@ import (
 	"github.com/godbus/dbus/v5"
 )
 
-func (p *impl) Variant(v *dbus.Variant) {
-	var err error
-	var raw json.RawMessage
-	raw, err = json.Marshal(v.Value())
-	if err != nil {
-		panic(err)
-	}
-
-	result := struct {
-		Signature string          `json:"signature"`
-		Value     json.RawMessage `json:"value"`
+func (p *impl) Variant(variant *dbus.Variant) {
+	v := struct {
+		Signature dbus.Signature
+		Value     interface{}
 	}{
-		Signature: v.Signature().String(),
-		Value:     raw,
+		Signature: variant.Signature(),
+		Value: variant.Value(),
 	}
-
-	var resultJSON []byte
-	if p.indent == "" {
-		resultJSON, err = json.Marshal(result)
-	} else {
-		resultJSON, err = json.MarshalIndent(result, "", p.indent)
-	}
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s\n", resultJSON)
-}
-
-func (p *impl) Signal(s *dbus.Signal) {
 	var err error
 	var raw json.RawMessage
-	raw, err = json.Marshal(s)
+	if p.indent == "" {
+		raw, err = json.Marshal(v)
+	} else {
+		raw, err = json.MarshalIndent(v, "", p.indent)
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -47,10 +29,46 @@ func (p *impl) Signal(s *dbus.Signal) {
 	fmt.Printf("%s\n", raw)
 }
 
-func (p *impl) Reply(v []any) {
+func (p *impl) Signal(s *dbus.Signal) {
 	var err error
 	var raw json.RawMessage
-	raw, err = json.Marshal(v)
+	if p.indent == "" {
+		raw, err = json.Marshal(s)
+	} else {
+		raw, err = json.MarshalIndent(s, "", p.indent)
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s\n", raw)
+}
+
+func (p *impl) Reply(c *dbus.Call) {
+	v := struct {
+		Destination      string
+		Path             dbus.ObjectPath
+		Method           string
+		Args             []interface{}
+		Err              error
+		Body             []interface{}
+		ResponseSequence dbus.Sequence
+	}{
+		Destination:      c.Destination,
+		Path:             c.Path,
+		Method:           c.Method,
+		Args:             c.Args,
+		Err:              c.Err,
+		Body:             c.Body,
+		ResponseSequence: c.ResponseSequence,
+	}
+	var err error
+	var raw json.RawMessage
+	if p.indent == "" {
+		raw, err = json.Marshal(v)
+	} else {
+		raw, err = json.MarshalIndent(v, "", p.indent)
+	}
 	if err != nil {
 		panic(err)
 	}

@@ -14,6 +14,6 @@ func (p *impl) Signal(s *dbus.Signal) {
 	fmt.Printf("%v\n", *s)
 }
 
-func (p *impl) Reply(v []any) {
-	fmt.Printf("%v\n", v)
+func (p *impl) Reply(c *dbus.Call) {
+	fmt.Printf("%v\n", c)
 }

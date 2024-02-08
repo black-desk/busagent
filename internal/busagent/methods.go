@@ -80,6 +80,6 @@ func (agent *impl) Call(
 	if call.Err != nil {
 		return call.Err
 	}
-	agent.print.Reply(call.Body)
+	agent.print.Reply(call)
 	return
 }
