@@ -1,6 +1,9 @@
 package busagent
 
 import (
+	"errors"
+	"strings"
+
 	. "github.com/black-desk/lib/go/errwrap"
 	"github.com/godbus/dbus/v5"
 )
@@ -21,5 +24,35 @@ func (agent *impl) PropGet(
 	}
 
 	agent.print.Variant(&prop)
+	return
+}
+
+func (agent *impl) Listen(options []string) (err error) {
+	defer Wrap(&err, "listen")
+	opts := []dbus.MatchOption{}
+	for i := range options {
+		agent.log.Debug(options[i])
+		pos := strings.Index(options[i], "=")
+		if pos == -1 {
+			return errors.New("invalid option " + options[i])
+		}
+		key := options[i][:pos]
+		value := options[i][pos+1:]
+		opts = append(opts, dbus.WithMatchOption(key, value))
+	}
+
+	err = agent.conn.AddMatchSignal(opts...)
+	if err != nil {
+		return
+	}
+
+	signals := make(chan *dbus.Signal)
+
+	agent.conn.Signal(signals)
+
+	for signal := range signals {
+		agent.print.Signal(signal)
+	}
+
 	return
 }

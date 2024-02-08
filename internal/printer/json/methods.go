@@ -35,6 +35,14 @@ func (p *impl) Variant(v *dbus.Variant) {
 
 	fmt.Printf("%s\n", resultJSON)
 }
-func (p *impl) Message(*dbus.Message) {
-	panic("not implement yet")
+
+func (p *impl) Signal(s *dbus.Signal) {
+	var err error
+	var raw json.RawMessage
+	raw, err = json.Marshal(s)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s\n", raw)
 }
