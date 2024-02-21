@@ -9,17 +9,36 @@ import (
 	"github.com/godbus/dbus/v5"
 )
 
-func (p *impl) Variant(variant *dbus.Variant) {
-	v := struct {
-		Signature dbus.Signature
-		Value     interface{}
-	}{
-		Signature: variant.Signature(),
-		Value:     variant.Value(),
-	}
+func marshalDBusSignature(s dbus.Signature) ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+func marshalDBusVariant(v *dbus.Variant) ([]byte, error) {
+	return json.Marshal(
+		struct {
+			Signature dbus.Signature
+			Value     interface{}
+		}{
+			Signature: v.Signature(),
+			Value:     v.Value(),
+		},
+		json.WithMarshalers(json.MarshalFuncV1(marshalDBusSignature)),
+	)
+}
+
+var marshallers = json.NewMarshalers(
+	json.MarshalFuncV1(marshalDBusSignature),
+	json.MarshalFuncV1(marshalDBusVariant),
+)
+
+func (p *impl) Variant(v *dbus.Variant) {
 	var err error
 	var raw []byte
-	raw, err = json.Marshal(v, jsontext.WithIndent(p.indent))
+	raw, err = json.Marshal(
+		v,
+		jsontext.WithIndent(p.indent),
+		json.WithMarshalers(marshallers),
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -30,18 +49,10 @@ func (p *impl) Variant(variant *dbus.Variant) {
 func (p *impl) Signal(s *dbus.Signal) {
 	var err error
 	var raw []byte
-	raw, err = json.Marshal(s,
+	raw, err = json.Marshal(
+		s,
 		jsontext.WithIndent(p.indent),
-		json.WithMarshalers(json.MarshalFuncV1[*dbus.Variant](
-			func(v *dbus.Variant) ([]byte, error) {
-				return json.Marshal(struct {
-					Signature string
-					Value     interface{}
-				}{
-					Signature: v.Signature().String(),
-					Value:     v.Value()})
-			}),
-		))
+		json.WithMarshalers(json.MarshalFuncV1(marshalDBusVariant)))
 	if err != nil {
 		panic(err)
 	}
@@ -50,26 +61,13 @@ func (p *impl) Signal(s *dbus.Signal) {
 }
 
 func (p *impl) Reply(c *dbus.Call) {
-	v := struct {
-		Destination      string
-		Path             dbus.ObjectPath
-		Method           string
-		Args             []interface{}
-		Err              error
-		Body             []interface{}
-		ResponseSequence dbus.Sequence
-	}{
-		Destination:      c.Destination,
-		Path:             c.Path,
-		Method:           c.Method,
-		Args:             c.Args,
-		Err:              c.Err,
-		Body:             c.Body,
-		ResponseSequence: c.ResponseSequence,
-	}
 	var err error
 	var raw []byte
-	raw, err = json.Marshal(v, jsontext.WithIndent(p.indent))
+	raw, err = json.Marshal(
+		c,
+		jsontext.WithIndent(p.indent),
+		json.WithMarshalers(json.MarshalFuncV1(marshalDBusVariant)),
+	)
 	if err != nil {
 		panic(err)
 	}
