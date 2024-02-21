@@ -20,14 +20,10 @@ var listenCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(listenCmd)
-}
-
 var flagMatchOption []string
 
 func init() {
-	rootCmd.AddCommand(propCmd)
+	rootCmd.AddCommand(listenCmd)
 	listenCmd.PersistentFlags().StringArrayVarP(
-		&flagMatchOption, "signal", "s", []string{}, "signal name")
+		&flagMatchOption, "match", "m", []string{}, "match expression")
 }
