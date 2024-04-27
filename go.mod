@@ -1,6 +1,6 @@
 module github.com/black-desk/busagent
 
-go 1.21.6
+go 1.21
 
 require (
 	github.com/black-desk/lib/go v0.0.0-20240122101039-99a6323db5de
